@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>{{ title }}</h2>
+<p>year released: {{ year }}</p>
+<p><a href="{{ url }}">find on imdb</a></p>
+<p>average rating: {{ avg }}</p>
+
+{% if session["user_id"] %}
+    {% if user_rating %}
+        <p>your rating: {{ user_rating }}</p>
+    {% else %}
+        <p>you have not yet rated this movie</p>
+    {% endif %}
+
+    <form></form>
+
+{% else %}
+    <p><a href="/login-form">Log in</a> to rate this movie</p>
+{% endif %}
+
+
+<!-- logic to see if logged in; else message - "Log in to rate"
+     see if they have rated this movie and show the rating if so
+     show the rating form either way. -->
+<p>
+
+    <ul>
+        {% for user_id, score in ratings %}
+            <li>
+                <a href="/users/{{ user_id }}">{{ user_id }}</a> ({{ score }})
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

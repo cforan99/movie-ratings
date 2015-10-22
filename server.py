@@ -102,6 +102,38 @@ def show_user_details(user_id):
                            age=age,
                            ratings=ratings)
 
+@app.route("/movies/<int:movie_id>")
+def show_movie_details(movie_id):
+    """Shows user details and list of movies rated."""
+
+    movie = db.session.query(Movie).get(movie_id)
+    title = movie.title
+    # TODO format datetime object for just the year
+    year = movie.released_at.strftime("%Y")
+    url = movie.imdb_url
+    ratings = db.session.query(User.user_id, Rating.score).join(Rating).filter_by(movie_id=movie_id).order_by(Rating.score.desc(), User.user_id).all()
+    user_rating = db.session.query(Rating.score).filter_by(movie_id=movie_id, user_id=session["user_id"]).first()
+
+    QUERY = """
+        SELECT avg(score)
+        FROM Ratings
+        WHERE movie_id = movie_id
+        """
+    db_cursor = db.session.execute(QUERY, {'movie_id': movie_id})
+    row = db_cursor.fetchone()
+    avg = row[0]
+
+    # avg = db.session.query(Rating.score).filter_by(movie_id=movie_id)
+
+    return render_template("movie-details.html",
+                           movie_id=movie_id,
+                           title=title,
+                           year=year,
+                           url=url,
+                           ratings=ratings,
+                           avg=avg,
+                           user_rating=user_rating)
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point
