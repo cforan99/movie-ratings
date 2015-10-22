@@ -39,16 +39,39 @@ def process_login():
     email = request.form.get("email")
     password = request.form.get("password")
 
-    # query database to find user with given email
+    # query database to see if email in db
+    # if not in db, add!
+        #TODO - Create separate registration page to prevent accidental "duplicate" accounts
+    try:
+        user = db.session.query(User).filter_by(email=email).one()
+    except:
+        user = User(email=email,
+                    password=password)
 
-    # if email in db:
-    #     if password is correct:
-    #         store id in session
-    #         redirect to user page
-    #     else:
-    #         flash error message and redirect to login-form
-    # else:
-    #     flash error message and stay on login-form
+        db.session.add(user)
+        db.session.commit()
+
+    # if password is correct, store id in session and go to homepage:
+        # TODO go to user page instead
+    # else flash error message and redirect to login-form
+        # TODO rather than redirect to same page, block event handler so data stays put
+    if password == user.password:
+        session["user_id"] = user.user_id
+        # user_id =
+        return render_template("homepage.html")
+    else:
+        flash("Sorry, that password isn't correct.  Please try again.")
+        return render_template("login-form.html")
+
+
+@app.route("/logout")
+def logout_user():
+    """Logs out user by removing user_id from session"""
+
+    session["user_id"] = None
+    flash("You've been successfully logged out.")
+
+    return render_template("homepage.html")
 
 
 @app.route("/users")
