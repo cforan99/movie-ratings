@@ -81,6 +81,27 @@ def user_list():
     users = User.query.all()
     return render_template("user-list.html", users=users)
 
+@app.route("/movies")
+def movie_list():
+    """Show list of movies."""
+
+    movies = Movie.query.order_by(Movie.title).all()
+    return render_template("movie-list.html", movies=movies)
+
+@app.route("/users/<int:user_id>")
+def show_user_details(user_id):
+    """Shows user details and list of movies rated."""
+
+    user = db.session.query(User).get(user_id)
+    zipcode = user.zipcode
+    age = user.age
+    ratings = db.session.query(Movie.title, Movie.movie_id, Rating.score).join(Rating).filter_by(user_id=user_id).order_by(Movie.title).all()
+
+    return render_template("user-details.html",
+                           zipcode=zipcode,
+                           age=age,
+                           ratings=ratings)
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point
