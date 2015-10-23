@@ -134,6 +134,29 @@ def show_movie_details(movie_id):
                            avg=avg,
                            user_rating=user_rating)
 
+@app.route("/add-rating", methods=["POST"])
+def add_rating():
+    movie_id = request.form.get('movie_id')
+    rating = request.form.get('value')
+    user_id = session['user_id']
+    current_rating = db.session.query(Rating.score).filter_by(movie_id=movie_id, user_id=user_id).first()
+
+    if current_rating:
+        QUERY = """
+        UPDATE Ratings
+        SET score = :rating
+        WHERE movie_id = :movie_id AND user_id = :user_id
+        """
+        db.session.execute(QUERY, {'rating': rating, 'movie_id': movie_id, 'user_id': user_id})
+        db.session.commit()
+
+    else:
+        new_rating = Rating(movie_id=movie_id, user_id=user_id, score=rating)
+        db.session.add(new_rating)
+        db.session.commit()
+
+    return "Your rating has been logged.  Your taste sucks though."
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point

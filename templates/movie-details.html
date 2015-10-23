@@ -8,12 +8,32 @@
 
 {% if session["user_id"] %}
     {% if user_rating %}
-        <p>your rating: {{ user_rating }}</p>
+        <p>your rating: {{ user_rating[0] }}</p>
     {% else %}
         <p>you have not yet rated this movie</p>
     {% endif %}
 
-    <form></form>
+    Rate this movie 1-5
+    <form method="POST" action="/add-rating">
+        <span class="star-rating">
+          <input class="star" type="radio" name="rating" value="1"><i></i>
+          <input class="star" type="radio" name="rating" value="2"><i></i>
+          <input class="star" type="radio" name="rating" value="3"><i></i>
+          <input class="star" type="radio" name="rating" value="4"><i></i>
+          <input class="star" type="radio" name="rating" value="5"><i></i>
+        </span>
+        <div id="alert"></div>
+    </form>
+    <script>
+        function addRating(evt) {
+            $.post('/add-rating', {'value': this.value, 'movie_id': {{ movie_id }}}, function (data) {
+                console.log(data);
+                $('#alert').html(data);
+            });
+        }
+
+        $(".star").on('click', addRating);
+    </script>
 
 {% else %}
     <p><a href="/login-form">Log in</a> to rate this movie</p>
